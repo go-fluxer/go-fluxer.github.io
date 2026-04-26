@@ -1,0 +1,13 @@
+.idea/
+.vscode/
+.DS_Store
+.env
+*.exe
+*.dll
+*.msi
+*.lnk
+*.log
+*.zip
+*.rar
+*.tar.gz
+*.jar

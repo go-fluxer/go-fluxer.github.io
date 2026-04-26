@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>GoFluxer</title>
+	<style>
+		pre {
+			background-color: #C8C8C8;
+			font-family: 'Courier New', Courier, monospace;
+		}
+		body {
+			background-color: MidnightBlue;
+		}
+		h1 {
+			color: Aqua;
+			font-size: 300%;
+			text-align:center;
+		}
+		h2 {
+			color: Aqua;
+			font-size: 250%;
+			text-align:center;
+		}
+		h3 {
+			color: Aqua;
+			font-size: 200%;
+			text-align:center;
+		}
+		ul, ol {
+			color: Aqua;
+			font-size: 160%;
+			padding: 10px 50px;
+			background-color: #646464;
+			border-radius: 8px;
+			max-width: 50%;
+		}
+		.alert {
+			background-color: #f44336; /* Red */
+			color: white;
+			font-size:150%;
+			padding: 20px;
+			margin-bottom: 15px;
+		}
+	</style>
+</head>
+
+
+
+<body>
+
+<h1>GoFluxer</h1>
+
+<p style="font-size:160%; text-align:center; color: Aqua;">Welcome to the official website for Gofluxer. Gofluxer is an API wrapper to make Fluxer.app bots in Go.</p>
+
+<div style="text-align:center;">
+	<button onclick="document.location='https://'">Github</button>
+	<button onclick="document.location='https://fluxer.gg/KTXuuy7k'">Fluxer.app Support Server</button>
+</div>
+
+<p style="text-align:center; color: Aqua;">The Gofluxer package is not officially endorsed by or affiliated with fluxer.app or the Go programming language</p>
+
+<h2>Quick Get Started Guide</h2>
+
+<p style="text-align:center; color: Aqua;">NOTE: This quick start guide was made for gofluxer v0.1.x since this is when this site was last updated. This quick start guide also assumes you are using Linux. Steps for environment setup is a bit different on Windows. Refer to <a style="color:MediumSeaGreen;" href="https://go.dev">the Go website</a> for additional information on setting up Go on your machine. GoFluxer requires Go 1.21 or newer.</p>
+
+<h3>Fluxer.app Bot Setup</h3>
+
+<p style="font-size:160%; text-align:center; color: Aqua;">Before doing anything, you will need to install Gofluxer to your Go environment. To do this, you can run the following command:<p>
+
+<pre><code class="language-shell">
+go get github.com/go-fluxer
+</code></pre>
+
+<p style="font-size:160%; text-align:center; color: Aqua;">Once you have setup a Go environment and have installed gofluxer, follow these steps to create a bot account. These steps assume you are using the official browser client provided by Fluxer. Steps may be a bit different depending on the client used if using a third party client.</p>
+
+<ol>
+	<li>Open your user settings. On the browser client, it is the gear icon next to the mute/defean button on your bottom left.</li>
+	<li>Scroll down until you see the Applications tab. Press that to access your list of bots.</li>
+	<li>Click on "Create Application" and give your bot a name (don't worry, you can change the name later). Confirm the creation by clicking "Create" and now you have a bot application.</li>
+</ol>
+
+<div class="alert">Pay close attention. This next part explains what your bot token is and why it is important to keep it safe. </div>
+
+<p style="font-size:160%; text-align:center; color: Aqua;">Once in your application settings, click on "Regenerate" under a place called "Bot token" to obtain your bot token.</p>
+
+<p style="font-size:160%; text-align:center; color: Aqua;">You may be asking, what even is a bot token? A bot token is essentially like a password that your bot uses to log into Fluxer. It is extremely important to never share this token with anyone. If someone managed to get a hold of it, they can do whatever they want with your bot like it is their own bot which means they can do malicious things with it. If someone else has your bot token, they can do things like kick or ban as many people as possible as well as DM spam as many user as possible and spam every server the bot is in</p>
+
+<p style="font-size:160%; text-align:center; color: Aqua;">If your bot token has been compromised wheither it is from accidently commiting it to a public repository, posting it in the GoFluxer support server, or other instances where you might see your bot's token in danger, you can press the "Regenerate" button under bot token within your bot's settings (the same way you got your token originally). This will invalidate your old bot token and give you a new one. You will need to update your bot's code with the new token.</p>
+
+<p style="font-size:160%; text-align:center; color: Aqua;">To add your bot to a server, within your bot settings, scroll down till you see OAuth2 URL Builder. Check the bot scope and copy the Authorize url that it gave you. They should look something like this: https://web.fluxer.app/oauth2/authorize?client_id=(BOTID)&scope=bot</p>
+
+<h3>Your first bot in Go with GoFluxer</h3>
+
+<p style="font-size:160%; text-align:center; color: Aqua;">Now that you made a bot application and you have setup your environment to run Go projects with GoFluxer, we can now get started with making a Fluxer bot.</p>
+
+<p style="font-size:160%; text-align:center; color: Aqua;">Here is how you can make a Fluxer.app bot client with the GoFluxer package:</p>
+
+<pre><code class="language-go">
+package main
+
+import (
+	"fmt"
+	"strings"
+	// Import the Gofluxer package.
+	"github.com/go-fluxer/gofluxer"
+)
+
+func main() {
+	// Make the Fluxer.app Bot client.
+	bot := gofluxer.NewBot("FLUXERBOTTOKEN", "!")
+	// Replace FLUXERBOTTOKEN with your actual fluxer.app bot token. The "!" part is the bot prefix for the command handler.
+
+	// Log into the bot.
+	fmt.Println("Gofluxer Bot is getting Ready")
+	if err := bot.Run(); err != nil {
+		fmt.Printf("Gofluxer Bot stopped: %v\n", err)
+	}
+}
+</code></pre>
+
+<p style="font-size:160%; text-align:center; color: Aqua;">Within the main() function, you can add events like OnMessage() and AddCommand() to give your Fluxer bot some functionality. Here is an example on how to add these events.</p>
+
+<pre><code class="language-go">
+// package main and imports here.
+
+func main() {
+	// The client line
+
+	// OnMessage event
+	bot.OnMessage(func(m *gofluxer.Message) {
+		// When someone says a message, it gets logged into the console.
+		fmt.Printf("[%s]: %s\n", m.Author.Username, m.Content)
+
+		// When someone says ping, the bot replies with Pong! without needing the prefix.
+		if strings.ToLower(m.Content) == "ping" {
+			bot.SendMessage(m.ChannelID, "Pong!")
+		}
+	})
+
+	// AddCommand (Command handler).
+	bot.AddCommand("ping", func(m *gofluxer.Message, args []string) {
+		bot.SendMessage(m.ChannelID, "Pong!")
+	})
+
+	// Bot login logic.
+}
+</code></pre>
+
+<p style="font-size:160%; text-align:center; color: Aqua;">These are the basics for making a basic Fluxer.app bot in Go using GoFluxer. If you plan to release your Fluxer bot on sites like Github or Codeberg, I advise that you use .env or a config.json file to store your values instead of hard coding the values directly in the code. Obviously don't push any secrets to your repo. If you need help with using the GoFluxer package, feel free to join the GoFluxer Fluxer.app server.</p>
+
+</body>
+</html>
