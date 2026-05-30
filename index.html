@@ -41,6 +41,13 @@
 			padding: 20px;
 			margin-bottom: 15px;
 		}
+		.badges {
+			align-items: center;
+			justify-content: center;
+			margin: 0;
+			display: flex;
+			gap: 10px;
+		}
 	</style>
 </head>
 
@@ -52,8 +59,21 @@
 
 <p style="font-size:160%; text-align:center; color: Aqua;">Welcome to the official website for Gofluxer. Gofluxer is an API wrapper to make Fluxer.app bots in Go.</p>
 
+<div class="badges">
+	<a href="https://go.dev">
+		<img src="https://img.shields.io/badge/Go-%2300ADD8.svg?&logo=go&logoColor=white" alt="License">
+	</a>
+    <a href="https://github.com/go-fluxer/gofluxer">
+        <img src="https://img.shields.io/github/go-mod/go-version/go-fluxer/gofluxer" alt="Version">
+    </a>
+    <a href="https://github.com/go-fluxer/gofluxer">
+        <img src="https://img.shields.io/github/license/go-fluxer/gofluxer" alt="License">
+    </a>
+</div>
+
 <div style="text-align:center;">
-	<button onclick="document.location='https://'">Github</button>
+	<button onclick="document.location='https://github.com/go-fluxer'">Github</button>
+	<button onclick="document.location='https://codeberg.org/go-fluxer'">Codeberg</button>
 	<button onclick="document.location='https://fluxer.gg/KTXuuy7k'">Fluxer.app Support Server</button>
 </div>
 
@@ -61,14 +81,16 @@
 
 <h2>Quick Get Started Guide</h2>
 
-<p style="text-align:center; color: Aqua;">NOTE: This quick start guide was made for gofluxer v0.1.x since this is when this site was last updated. This quick start guide also assumes you are using Linux. Steps for environment setup is a bit different on Windows. Refer to <a style="color:MediumSeaGreen;" href="https://go.dev">the Go website</a> for additional information on setting up Go on your machine. GoFluxer requires Go 1.21 or newer.</p>
+<p style="text-align:center; color: Aqua;">NOTE: This quick start guide was made for gofluxer v0.2.x since this is when this site was last updated. This quick start guide also assumes you are using Linux. Steps for environment setup is a bit different on Windows. Refer to <a style="color:MediumSeaGreen;" href="https://go.dev">the Go website</a> for additional information on setting up Go on your machine. GoFluxer requires Go 1.21 or newer.</p>
 
 <h3>Fluxer.app Bot Setup</h3>
 
 <p style="font-size:160%; text-align:center; color: Aqua;">Before doing anything, you will need to install Gofluxer to your Go environment. To do this, you can run the following command:<p>
 
 <pre><code class="language-shell">
-go get github.com/go-fluxer
+go get github.com/go-fluxer/gofluxer
+or
+go get codeberg.org/go-fluxer/gofluxer
 </code></pre>
 
 <p style="font-size:160%; text-align:center; color: Aqua;">Once you have setup a Go environment and have installed gofluxer, follow these steps to create a bot account. These steps assume you are using the official browser client provided by Fluxer. Steps may be a bit different depending on the client used if using a third party client.</p>
@@ -118,13 +140,39 @@ func main() {
 }
 </code></pre>
 
-<p style="font-size:160%; text-align:center; color: Aqua;">Within the main() function, you can add events like OnMessage() and AddCommand() to give your Fluxer bot some functionality. Here is an example on how to add these events.</p>
+<p style="font-size:160%; text-align:center; color: Aqua;">Additional Bot configuration options</p>
+
+<pre><code class="language-go">
+package main
+
+import (
+	"fmt"
+	"strings"
+	// Import the Gofluxer package.
+	"github.com/go-fluxer/gofluxer"
+)
+
+func main() {
+	// Make the Fluxer.app Bot client.
+	bot := gofluxer.NewBot("FLUXERBOTTOKEN", "!")
+
+	bot.NewBotInstance("https://example.com/api/v1", "wss://example.com/gateway/?v=1")
+	// Use a 3rd party Fluxer instance with NewBotInstance. (Baseurl, WebsocketUrl)
+
+	bot.NewBotConfig(true, 500)
+	// Setup max message caching limits. (EnableMessageCachingLimit, MaxMessageCacheLimit)
+
+	// Bot login logic.
+}
+</code></pre>
+
+<p style="font-size:160%; text-align:center; color: Aqua;">Within the main() function, you can add events like OnMessage() and AddCommand() to give your Fluxer bot some functionality. Here is an example on how to add these events to your code.</p>
 
 <pre><code class="language-go">
 // package main and imports here.
 
 func main() {
-	// The client line
+	// The client line(s)
 
 	// OnMessage event
 	bot.OnMessage(func(m *gofluxer.Message) {
@@ -138,9 +186,41 @@ func main() {
 	})
 
 	// AddCommand (Command handler).
+	// SendMessage is normal message. ReplyMessage will reply to the command author.
 	bot.AddCommand("ping", func(m *gofluxer.Message, args []string) {
 		bot.SendMessage(m.ChannelID, "Pong!")
 	})
+
+	bot.AddCommand("pingreply", func(m *gofluxer.Message, args []string) {
+		bot.ReplyMessage(m, "Pong!")
+	})
+
+	// Bot login logic.
+}
+</code></pre>
+
+<p style="font-size:160%; text-align:center; color: Aqua;">There are other functions that you can use to give your bot functionality.</p>
+
+<pre><code class="language-go">
+// package main and imports here.
+
+func main() {
+	// The client line(s)
+
+	bot.OnUserJoin(func(u *gofluxer.UserJoinPayload) {
+		fmt.Printf("Welcome %s to %s!\n", u.User.Username, u.GuildID)
+	})
+	// OnUserJoin (Triggers when a user joins a server).
+
+	bot.OnUserLeave(func(l *gofluxer.UserLeavePayload) {
+		fmt.Printf("%s (ID: %s) has left %s.\n", l.User.Username, l.UserID, l.GuildName)
+	})
+	//OnUserLeave (Triggers when a user leaves a server).
+
+	bot.OnMessageDelete(func(d *gofluxer.MessageDeletePayload) {
+		fmt.Printf("The following message %s was deleted from %s\n", d.MessageID, d.ChannelID)
+	})
+	// OnMessageDelete (Triggers when a message gets deleted)
 
 	// Bot login logic.
 }

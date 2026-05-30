@@ -1,6 +1,10 @@
 .idea/
 .vscode/
 .DS_Store
+test/
+Thumbs.db
+Thumbs.db:encryptable
+venv
 .env
 *.exe
 *.dll
