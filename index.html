@@ -32,7 +32,7 @@
 			padding: 10px 50px;
 			background-color: #646464;
 			border-radius: 8px;
-			max-width: 50%;
+			max-width: 80%;
 		}
 		.alert {
 			background-color: #f44336; /* Red */
@@ -124,7 +124,7 @@
 
 <h2>Quick Get Started Guide</h2>
 
-<p style="text-align:center; color: Aqua;">NOTE: This quick start guide was made for gofluxer v0.4.x since this is when this site was last updated. This quick start guide also assumes you are using Linux. Steps for environment setup is a bit different on Windows. Refer to <a style="color:MediumSeaGreen;" href="https://go.dev">the Go website</a> for additional information on setting up Go on your machine. GoFluxer requires Go 1.21 or newer.</p>
+<p style="text-align:center; color: Aqua;">NOTE: This quick start guide was made for gofluxer v0.5.x since this is when this site was last updated. This quick start guide also assumes you are using Linux. Steps for environment setup is a bit different on Windows. Refer to <a style="color:MediumSeaGreen;" href="https://go.dev">the Go website</a> for additional information on setting up Go on your machine. GoFluxer requires Go 1.21 or newer.</p>
 
 <h3>Fluxer.app Bot Setup</h3>
 
@@ -148,7 +148,7 @@ go get codeberg.org/go-fluxer/gofluxer
 
 <p style="font-size:160%; text-align:center; color: Aqua;">Once in your application settings, click on "Regenerate" under a place called "Bot token" to obtain your bot token.</p>
 
-<p style="font-size:160%; text-align:center; color: Aqua;">You may be asking, what even is a bot token? A bot token is essentially like a password that your bot uses to log into Fluxer. It is extremely important to never share this token with anyone. If someone managed to get a hold of it, they can do whatever they want with your bot like it is their own bot which means they can do malicious things with it. If someone else has your bot token, they can do things like kick or ban as many people as possible as well as DM spam as many user as possible and spam every server the bot is in</p>
+<p style="font-size:160%; text-align:center; color: Aqua;">You may be asking, what even is a bot token? A bot token is essentially like a password that your bot uses to log into Fluxer. It is extremely important to never share this token with anyone. If someone managed to get a hold of it, they can do whatever they want with your bot like it is their own bot which means they can do malicious things with it. If someone else has your bot token, they can do things like kick or ban as many people as possible as well as DM spam as many user as possible and spam every server the bot is in.</p>
 
 <p style="font-size:160%; text-align:center; color: Aqua;">If your bot token has been compromised wheither it is from accidently commiting it to a public repository, posting it in the GoFluxer support server, or other instances where you might see your bot's token in danger, you can press the "Regenerate" button under bot token within your bot's settings (the same way you got your token originally). This will invalidate your old bot token and give you a new one. You will need to update your bot's code with the new token.</p>
 
@@ -158,7 +158,7 @@ go get codeberg.org/go-fluxer/gofluxer
 
 <p style="font-size:160%; text-align:center; color: Aqua;">Now that you made a bot application and you have setup your environment to run Go projects with GoFluxer, we can now get started with making a Fluxer bot.</p>
 
-<p style="font-size:160%; text-align:center; color: Aqua;">Here is how you can make a Fluxer.app bot client with the GoFluxer package:</p>
+<p style="font-size:160%; text-align:center; color: Aqua;">Here is how you can make a Fluxer.app bot client with the GoFluxer package (shows additional Bot configuration options):</p>
 
 <pre><code class="language-go">
 package main
@@ -175,37 +175,14 @@ func main() {
 	bot := gofluxer.NewBot("FLUXERBOTTOKEN", "!")
 	// Replace FLUXERBOTTOKEN with your actual fluxer.app bot token. The "!" part is the bot prefix for the command handler.
 
-	// Log into the bot.
-	fmt.Println("Gofluxer Bot is getting Ready")
-	if err := bot.Run(); err != nil {
-		fmt.Printf("Gofluxer Bot stopped: %v\n", err)
-	}
-}
-</code></pre>
-
-<p style="font-size:160%; text-align:center; color: Aqua;">Additional Bot configuration options</p>
-
-<pre><code class="language-go">
-package main
-
-import (
-	"fmt"
-	"strings"
-	// Import the Gofluxer package.
-	"github.com/go-fluxer/gofluxer"
-)
-
-func main() {
-	// Make the Fluxer.app Bot client.
-	bot := gofluxer.NewBot("FLUXERBOTTOKEN", "!")
-
-	bot.NewBotInstance("https://example.com/api/v1", "wss://example.com/gateway/?v=1")
 	// Use a 3rd party Fluxer instance with NewBotInstance. (Baseurl, WebsocketUrl)
+	bot.NewBotInstance("https://example.com/api/v1", "wss://example.com/gateway/?v=1")
 
+	// Setup max message caching limits. (EnableMessageCachingLimit, MaxMessageCacheLimit). Enabling this will help make OnMessageEdit work properly
 	bot.NewBotConfig(true, 500)
-	// Setup max message caching limits. (EnableMessageCachingLimit, MaxMessageCacheLimit)
 
-	// Bot login logic.
+	// Log into the bot.
+	bot.Run()
 }
 </code></pre>
 
@@ -250,44 +227,64 @@ func main() {
 func main() {
 	// The client line(s)
 
+	// OnUserJoin (Triggers when a user joins a server).
 	bot.OnUserJoin(func(u *gofluxer.UserJoinPayload) {
 		fmt.Printf("Welcome %s to %s!\n", u.User.Username, u.GuildID)
 	})
-	// OnUserJoin (Triggers when a user joins a server).
 
+	//OnUserLeave (Triggers when a user leaves a server).
 	bot.OnUserLeave(func(l *gofluxer.UserLeavePayload) {
 		fmt.Printf("%s (ID: %s) has left %s.\n", l.User.Username, l.UserID, l.GuildName)
 	})
-	//OnUserLeave (Triggers when a user leaves a server).
 
+	// OnMessageDelete (Triggers when a message gets deleted).
 	bot.OnMessageDelete(func(d *gofluxer.MessageDeletePayload) {
 		fmt.Printf("The following message %s was deleted from %s\n", d.MessageID, d.ChannelID)
 	})
-	// OnMessageDelete (Triggers when a message gets deleted).
 
+	// OnMessageEdit (Triggers when a message gets edited). Requires NewBotConfig to be active for this to work properly.
 	bot.OnMessageEdit(func(e *gofluxer.MessageUpdatePayload) {
 		if e.OldContent != "" {
 			fmt.Printf("Message was edited in <#%s>!\nOld content: %s\nNew content: %s\n", e.ChannelID, e.OldContent, e.NewContent)
 		}
 	})
-	// OnMessageEdit (Triggers when a message gets edited). Requires NewBotConfig to be active for this to work.
 
+	// OnMessageReact (Triggers when someone reacts to a message).
 	bot.OnMessageReact(func(e *gofluxer.MessageReactionPayload) {
 		bot.AddReaction(e.ChannelID, e.MessageID, "👀")
 	})
-	// OnMessageReact (Triggers when someone reacts to a message).
 
 	// Bot login logic.
 }
 </code></pre>
 
-<p style="font-size:160%; text-align:center; color: Aqua;">These are the basics for making a basic Fluxer.app bot in Go using GoFluxer. If you plan to release your Fluxer bot on sites like Github or Codeberg, I advise that you use .env or a config.json file to store your values instead of hard coding the values directly in the code. Obviously don't push any secrets to your repo. If you need help with using the GoFluxer package, feel free to join the GoFluxer Fluxer.app server.</p>
+<p style="font-size:160%; text-align:center; color: Aqua;">These are the basics for making a basic Fluxer.app bot in Go using GoFluxer. If you plan to release your Fluxer bot on sites like Github or Codeberg, I advise that you use .env or a config.json file to store your values instead of hard coding the values directly in the code. Obviously don't push any secrets to your repo. If you need help with using the GoFluxer package, feel free to join the GoFluxer Fluxer.app server. GoFluxer staff will never ask for your bot token.</p>
+
+<a href="https://fbl.gg/servers/b0fd8582-0439-4737-8fab-50fdb555f7d0/vote?ref=widget" target="_blank" rel="noopener"><img src="https://fbl.gg/api/widgets/servers/b0fd8582-0439-4737-8fab-50fdb555f7d0/large.svg" alt="gofluxer on Fluxer Bot List" width="500" height="240" /></a>
+
+<h3>Frequetly Asked Questions</h3>
+
+<ol>
+	<li>Q: What GoLang version do I need to use gofluxer? | A: Go 1.21 or newer</li>
+	<li>Q: What makes GoFluxer a good option to use compared to other options? | A: Maintainability, lightweight (even uses the least amount of GoLang packages as possible), and easy to use.</li>
+	<li>Q: Is this project officially endorsed by or affiliated with fluxer.app / Fluxer Platform AB? | A: No. This is a community run GoLang project</li>
+	<li>Q: I found a bug / something is broken / I want X feature | A: Open an issue on the github/codeberg repo or open a forum post with the approprite tag in the GoFluxer server.</li>
+</ol>
 
 <div id="changelogModal" class="modal">
 	<div class="modal-content">
 		<span class="close-btn">&times;</span>
 		<h2>GoFluxer Changelog</h2>
 		<div class="modal-body">
+			<h3>Version 0.5.0 (October 21st, 2026)</h3>
+			<p>Added WhEditMessage, EditWebhook, GetWebhook, and DeleteWebhook. Only accessable through the bot client.</p>
+			<p>Added the ability to create thread and creating forum posts within the bot client.</p>
+			<p>Added SendMessageClean and ReplyMessageClean which is like SendMessage and ReplyMessage except messages are sanitized to prevent everyone and here mentions.</p>
+			<p>Added the ability to edit and delete messages with EditMessage and DeleteMessage.</p>
+			<p>Added the ability to get information about a sticker in a server.</p>
+			<p>Added the ability to change the bot's presense.</p>
+			<p>Forwarding messages now works.</p>
+
 			<h3>Version 0.4.0 (June 17th, 2026)</h3>
 			<p>Added OAuth2 support for making web dashboards for Fluxer bots. It only supports using the identify and guilds scope.</p>
 
