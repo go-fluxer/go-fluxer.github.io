@@ -266,7 +266,7 @@ func main() {
 
 <ol>
 	<li>Q: What GoLang version do I need to use gofluxer? | A: Go 1.21 or newer</li>
-	<li>Q: What makes GoFluxer a good option to use compared to other options? | A: Maintainability, lightweight (even uses the least amount of GoLang packages as possible), and easy to use.</li>
+	<li>Q: What makes GoFluxer a good option to use compared to other options? | A: Maintainability, lightweight (uses the least amount of GoLang packages as possible and uses low resources), and easy to use.</li>
 	<li>Q: Is this project officially endorsed by or affiliated with fluxer.app / Fluxer Platform AB? | A: No. This is a community run GoLang project</li>
 	<li>Q: I found a bug / something is broken / I want X feature | A: Open an issue on the github/codeberg repo or open a forum post with the approprite tag in the GoFluxer server.</li>
 </ol>
@@ -276,6 +276,13 @@ func main() {
 		<span class="close-btn">&times;</span>
 		<h2>GoFluxer Changelog</h2>
 		<div class="modal-body">
+			<h3>Version 0.5.1 (October 23rd, 2026)</h3>
+			<p>Added GetUser function for getting information about a user based on a user ID.</p>
+			<p>Added Discriminator, Flags, and System to User struct.</p>
+			<p>Added Topic and Nsfw to Channel struct.</p>
+			<p>Added Pinned, Mention, and Flags to Message struct.</p>
+			<p>Added AfkTimeout and VerificationLevel in GuildInfo struct</p>
+
 			<h3>Version 0.5.0 (October 21st, 2026)</h3>
 			<p>Added WhEditMessage, EditWebhook, GetWebhook, and DeleteWebhook. Only accessable through the bot client.</p>
 			<p>Added the ability to create thread and creating forum posts within the bot client.</p>
